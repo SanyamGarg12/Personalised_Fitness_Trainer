@@ -2,6 +2,8 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import time
+import json
+import sys
 
 def angle_calc(a, b, c):
     a, b, c = np.array(a), np.array(b), np.array(c)
@@ -27,9 +29,34 @@ def is_stationary(prev_landmarks, curr_landmarks, threshold=0.02):
     avg_diff = total_diff / len(prev_landmarks)
     return avg_diff < threshold
 
+def check_angles(current_angles, target_angles):
+    feedback = []
+    for joint, angle in current_angles.items():
+        if joint in target_angles:
+            target = target_angles[joint]
+            if angle < target['min']:
+                feedback.append(f"{joint} angle too small")
+            elif angle > target['max']:
+                feedback.append(f"{joint} angle too large")
+    return feedback
+
+def estimate_distance(landmarks):
+    # Simple distance estimation based on shoulder width
+    left_shoulder = landmarks[mp_pose.PoseLandmark.LEFT_SHOULDER.value]
+    right_shoulder = landmarks[mp_pose.PoseLandmark.RIGHT_SHOULDER.value]
+    shoulder_width = np.sqrt((left_shoulder.x - right_shoulder.x)**2 + 
+                           (left_shoulder.y - right_shoulder.y)**2)
+    # Approximate distance in meters (this is a rough estimation)
+    return 0.5 / shoulder_width
+
 mp_drawing = mp.solutions.drawing_utils
 mp_pose = mp.solutions.pose
 mp_drawing_styles = mp.solutions.drawing_styles
+
+# Get exercise data from command line arguments
+exercise_data = json.loads(sys.argv[1])
+target_angles = exercise_data['targetAngles']
+distance_threshold = exercise_data['distanceThreshold']
 
 cap = cv2.VideoCapture(0)
 
@@ -84,115 +111,66 @@ with mp_pose.Pose(min_detection_confidence=0.7, min_tracking_confidence=0.7) as 
             right_ankle = [landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].x,
                         landmarks[mp_pose.PoseLandmark.RIGHT_ANKLE.value].y]
             
-            # Additional points
-            nose = [landmarks[mp_pose.PoseLandmark.NOSE.value].x,
-                    landmarks[mp_pose.PoseLandmark.NOSE.value].y]
-            
-            # Calculate angles for different joints
+            # Calculate angles
             angles = {
-                # Arms
                 "Left Elbow": round(angle_calc(left_shoulder, left_elbow, left_wrist), 2),
                 "Right Elbow": round(angle_calc(right_shoulder, right_elbow, right_wrist), 2),
-                
-                # Shoulders
                 "Left Shoulder": round(angle_calc(left_hip, left_shoulder, left_elbow), 2),
                 "Right Shoulder": round(angle_calc(right_hip, right_shoulder, right_elbow), 2),
-                
-                # Hips
                 "Left Hip": round(angle_calc(left_shoulder, left_hip, left_knee), 2),
                 "Right Hip": round(angle_calc(right_shoulder, right_hip, right_knee), 2),
-                
-                # Knees
                 "Left Knee": round(angle_calc(left_hip, left_knee, left_ankle), 2),
                 "Right Knee": round(angle_calc(right_hip, right_knee, right_ankle), 2),
-                
-                # Upper Body (between shoulders)
-                "Shoulder Line": round(angle_calc(left_shoulder, 
-                                                [(left_shoulder[0] + right_shoulder[0])/2, 
-                                                 (left_shoulder[1] + right_shoulder[1])/2], 
-                                                right_shoulder), 2),
-                
-                # Trunk angle
                 "Trunk": round(angle_calc(
                     [(left_shoulder[0] + right_shoulder[0])/2, (left_shoulder[1] + right_shoulder[1])/2],
                     [(left_hip[0] + right_hip[0])/2, (left_hip[1] + right_hip[1])/2],
                     [(left_knee[0] + right_knee[0])/2, (left_knee[1] + right_knee[1])/2]), 2)
             }
             
-            # Store the current angles
-            last_angles = angles
+            # Estimate distance
+            distance = estimate_distance(landmarks)
             
-            # Create list of key points for stationary detection
-            current_landmarks = [left_shoulder, left_elbow, left_wrist, right_shoulder, right_elbow, 
-                                right_wrist, left_hip, right_hip, left_knee, right_knee, 
-                                left_ankle, right_ankle, nose]
+            # Check angles and distance
+            angle_feedback = check_angles(angles, target_angles)
+            distance_feedback = []
+            if distance < distance_threshold['min']:
+                distance_feedback.append("Too close to camera")
+            elif distance > distance_threshold['max']:
+                distance_feedback.append("Too far from camera")
             
-            # Check if the person is stationary
-            if prev_landmarks is not None and is_stationary(prev_landmarks, current_landmarks):
-                if stationary_start_time is None:
-                    stationary_start_time = time.time()
-                elif time.time() - stationary_start_time >= stationary_duration:
-                    detailed_view = True
-            else:
-                stationary_start_time = None
-                detailed_view = False
+            # Prepare data to send to frontend
+            data = {
+                'angles': angles,
+                'distance': distance,
+                'feedback': angle_feedback + distance_feedback,
+                'isCorrectPose': len(angle_feedback) == 0 and len(distance_feedback) == 0
+            }
             
-            # Update previous landmarks
-            prev_landmarks = current_landmarks
+            # Send data to frontend
+            print(json.dumps(data))
             
-            # Display basic angle information
+            # Display feedback on video
             y_offset = 30
-            if detailed_view:
-                # Display detailed angles in a panel
-                overlay = image.copy()
-                cv2.rectangle(overlay, (10, 10), (300, 320), (0, 0, 0), -1)
-                cv2.addWeighted(overlay, 0.6, image, 0.4, 0, image)
-                
-                cv2.putText(image, "STATIC POSE DETECTED", (20, y_offset), 
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+            for feedback in data['feedback']:
+                cv2.putText(image, feedback, (20, y_offset), 
+                           cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
                 y_offset += 30
-                
-                for name, angle in angles.items():
-                    cv2.putText(image, f"{name}: {angle} deg", (20, y_offset), 
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-                    y_offset += 25
-            else:
-                # Display minimal info when moving
-                cv2.putText(image, f"L Elbow: {angles['Left Elbow']}", 
-                           tuple(np.multiply(left_elbow, [640, 480]).astype(int)), 
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-                cv2.putText(image, f"R Elbow: {angles['Right Elbow']}", 
-                           tuple(np.multiply(right_elbow, [640, 480]).astype(int)), 
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-                cv2.putText(image, f"Trunk: {angles['Trunk']}", 
-                           tuple(np.multiply([(left_hip[0] + right_hip[0])/2, (left_hip[1] + right_hip[1])/2], 
-                                           [640, 480]).astype(int)), 
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
             
-            # Display stationary progress when holding still
-            if stationary_start_time is not None and not detailed_view:
-                elapsed = time.time() - stationary_start_time
-                progress = min(elapsed / stationary_duration, 1.0)
-                bar_width = int(200 * progress)
-                cv2.rectangle(image, (220, 20), (420, 40), (0, 0, 0), -1)
-                cv2.rectangle(image, (220, 20), (220 + bar_width, 40), (0, 255, 0), -1)
-                cv2.putText(image, "Hold still...", (220, 15), 
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+            # Draw pose landmarks
+            mp_drawing.draw_landmarks(
+                image, 
+                results.pose_landmarks, 
+                mp_pose.POSE_CONNECTIONS,
+                landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
+            
+            cv2.imshow("Pose Estimation", image)
+            
+            if cv2.waitKey(5) & 0xFF == ord("q"):
+                break
                 
         except Exception as e:
-            pass
-
-        # Draw pose landmarks
-        mp_drawing.draw_landmarks(
-            image, 
-            results.pose_landmarks, 
-            mp_pose.POSE_CONNECTIONS,
-            landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style())
-        
-        cv2.imshow("Pose Estimation", image)
-
-        if cv2.waitKey(5) & 0xFF == ord("q"):
-            break
+            print(json.dumps({'error': str(e)}))
+            continue
 
 cap.release()
 cv2.destroyAllWindows()

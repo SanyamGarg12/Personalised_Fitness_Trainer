@@ -1,0 +1,147 @@
+{
+  "suryanamaskar_poses": {
+    "prayatna": {
+      "name": "Prayatna (Prayer Pose)",
+      "description": "Standing with hands in prayer position",
+      "targetAngles": {
+        "Left Shoulder": {"min": 80, "max": 100},
+        "Right Shoulder": {"min": 80, "max": 100},
+        "Left Elbow": {"min": 80, "max": 100},
+        "Right Elbow": {"min": 80, "max": 100},
+        "Left Hip": {"min": 170, "max": 180},
+        "Right Hip": {"min": 170, "max": 180},
+        "Left Knee": {"min": 170, "max": 180},
+        "Right Knee": {"min": 170, "max": 180}
+      },
+      "distanceThreshold": {"min": 1.5, "max": 3.0}
+    },
+    "hasta_uttanasana": {
+      "name": "Hasta Uttanasana (Raised Arms Pose)",
+      "description": "Arms raised above head, slight backbend",
+      "targetAngles": {
+        "Left Shoulder": {"min": 160, "max": 180},
+        "Right Shoulder": {"min": 160, "max": 180},
+        "Left Elbow": {"min": 170, "max": 180},
+        "Right Elbow": {"min": 170, "max": 180},
+        "Left Hip": {"min": 170, "max": 180},
+        "Right Hip": {"min": 170, "max": 180},
+        "Left Knee": {"min": 170, "max": 180},
+        "Right Knee": {"min": 170, "max": 180},
+        "Trunk": {"min": 160, "max": 180}
+      },
+      "distanceThreshold": {"min": 1.5, "max": 3.0}
+    },
+    "padahastasana": {
+      "name": "Padahastasana (Standing Forward Bend)",
+      "description": "Forward bend with hands touching feet",
+      "targetAngles": {
+        "Left Shoulder": {"min": 80, "max": 120},
+        "Right Shoulder": {"min": 80, "max": 120},
+        "Left Elbow": {"min": 160, "max": 180},
+        "Right Elbow": {"min": 160, "max": 180},
+        "Left Hip": {"min": 80, "max": 120},
+        "Right Hip": {"min": 80, "max": 120},
+        "Left Knee": {"min": 170, "max": 180},
+        "Right Knee": {"min": 170, "max": 180},
+        "Trunk": {"min": 60, "max": 100}
+      },
+      "distanceThreshold": {"min": 1.5, "max": 3.0}
+    },
+    "ashwa_sanchalanasana": {
+      "name": "Ashwa Sanchalanasana (Low Lunge)",
+      "description": "One leg forward in lunge position",
+      "targetAngles": {
+        "Left Shoulder": {"min": 80, "max": 120},
+        "Right Shoulder": {"min": 80, "max": 120},
+        "Left Elbow": {"min": 160, "max": 180},
+        "Right Elbow": {"min": 160, "max": 180},
+        "Left Hip": {"min": 80, "max": 120},
+        "Right Hip": {"min": 80, "max": 120},
+        "Left Knee": {"min": 80, "max": 120},
+        "Right Knee": {"min": 80, "max": 120},
+        "Trunk": {"min": 80, "max": 120}
+      },
+      "distanceThreshold": {"min": 1.5, "max": 3.0}
+    },
+    "phalakasana": {
+      "name": "Phalakasana (Plank Pose)",
+      "description": "Body straight like a plank",
+      "targetAngles": {
+        "Left Shoulder": {"min": 80, "max": 100},
+        "Right Shoulder": {"min": 80, "max": 100},
+        "Left Elbow": {"min": 80, "max": 100},
+        "Right Elbow": {"min": 80, "max": 100},
+        "Left Hip": {"min": 170, "max": 180},
+        "Right Hip": {"min": 170, "max": 180},
+        "Left Knee": {"min": 170, "max": 180},
+        "Right Knee": {"min": 170, "max": 180},
+        "Trunk": {"min": 170, "max": 180}
+      },
+      "distanceThreshold": {"min": 1.5, "max": 3.0}
+    },
+    "ashtanga_namaskara": {
+      "name": "Ashtanga Namaskara (Eight-Limbed Salutation)",
+      "description": "Eight points of body touching ground",
+      "targetAngles": {
+        "Left Shoulder": {"min": 60, "max": 90},
+        "Right Shoulder": {"min": 60, "max": 90},
+        "Left Elbow": {"min": 80, "max": 100},
+        "Right Elbow": {"min": 80, "max": 100},
+        "Left Hip": {"min": 160, "max": 180},
+        "Right Hip": {"min": 160, "max": 180},
+        "Left Knee": {"min": 160, "max": 180},
+        "Right Knee": {"min": 160, "max": 180},
+        "Trunk": {"min": 160, "max": 180}
+      },
+      "distanceThreshold": {"min": 1.5, "max": 3.0}
+    },
+    "bhujangasana": {
+      "name": "Bhujangasana (Cobra Pose)",
+      "description": "Cobra pose with backbend",
+      "targetAngles": {
+        "Left Shoulder": {"min": 80, "max": 120},
+        "Right Shoulder": {"min": 80, "max": 120},
+        "Left Elbow": {"min": 80, "max": 100},
+        "Right Elbow": {"min": 80, "max": 100},
+        "Left Hip": {"min": 160, "max": 180},
+        "Right Hip": {"min": 160, "max": 180},
+        "Left Knee": {"min": 160, "max": 180},
+        "Right Knee": {"min": 160, "max": 180},
+        "Trunk": {"min": 120, "max": 160}
+      },
+      "distanceThreshold": {"min": 1.5, "max": 3.0}
+    },
+    "adho_mukha_svanasana": {
+      "name": "Adho Mukha Svanasana (Downward Dog)",
+      "description": "Inverted V-shape pose",
+      "targetAngles": {
+        "Left Shoulder": {"min": 80, "max": 120},
+        "Right Shoulder": {"min": 80, "max": 120},
+        "Left Elbow": {"min": 160, "max": 180},
+        "Right Elbow": {"min": 160, "max": 180},
+        "Left Hip": {"min": 80, "max": 120},
+        "Right Hip": {"min": 80, "max": 120},
+        "Left Knee": {"min": 160, "max": 180},
+        "Right Knee": {"min": 160, "max": 180},
+        "Trunk": {"min": 80, "max": 120}
+      },
+      "distanceThreshold": {"min": 1.5, "max": 3.0}
+    },
+    "uttanasana": {
+      "name": "Uttanasana (Standing Forward Bend)",
+      "description": "Forward bend with hands on ground",
+      "targetAngles": {
+        "Left Shoulder": {"min": 80, "max": 120},
+        "Right Shoulder": {"min": 80, "max": 120},
+        "Left Elbow": {"min": 160, "max": 180},
+        "Right Elbow": {"min": 160, "max": 180},
+        "Left Hip": {"min": 80, "max": 120},
+        "Right Hip": {"min": 80, "max": 120},
+        "Left Knee": {"min": 170, "max": 180},
+        "Right Knee": {"min": 170, "max": 180},
+        "Trunk": {"min": 60, "max": 100}
+      },
+      "distanceThreshold": {"min": 1.5, "max": 3.0}
+    }
+  }
+} 
